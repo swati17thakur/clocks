@@ -1,0 +1,43 @@
+Assumptions: A GCP project exists with the required permissions to user to following services: IOT core,Cloud pub/sub,Dataflow,Bigquery,VM instance
+            - IOT device is connected to already created VM instance
+            - Since the data is coming at low frequency Bigquery is used to store data
+
+1. Code chunk to calculate clock angle:
+    def clockAngle(hour, minute):
+
+    # find position of hour's hand
+    h = (hour * 360) // 12 + (minute * 360) // (12 * 60)
+
+    # find position of minute's hand
+    m = (minute * 360) // (60)
+
+    # calculate the angle difference
+    angle = abs(h - m)
+
+    # consider shorter angle and return it
+    if angle > 180:
+        angle = 360 - angle
+
+    return angle
+
+2. Deployement Steps:
+
+  1. IOT Core: 
+    - Registry for IOT device.
+    - Cryptographic Keypair: To allow IOT devie to connect securely to Cloud IOT core
+    - Create a device & add it to Registry
+  2. Cloud Pub/Sub
+    -To forward the message from publisher(data sending application) to subscriber CLoud Pub/sub will be used
+    -Create pub/sub topic
+    -to allow project to publish this topic add project as member/publisher
+  3.Bigquery:
+    -Create the target Bigquery table with required schema: time,Calculated_angle
+  4. Dataflow Pipeline
+    -Write a python script to read pub/sub data
+    -Create a function to calculate clock angle
+    -Sink this data to bigquery
+    -Execute the dataflow job
+
+Sensor generated data will flow from the simulated devices through Cloud IoT Core to Cloud Pub/Sub topic. In turn,Dataflow job will read messages from Pub/Sub topic and write their contents to BigQuery table
+  
+          
